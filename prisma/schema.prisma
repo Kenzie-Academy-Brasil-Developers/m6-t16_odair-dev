@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Type_user {
+  COMPRADOR
+  ANUNCIANTE
+}
+
+enum Type_fuel {
+  GASOLINA
+  ETANOL
+}
+
+model User {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  name         String         @db.VarChar(150)
+  cpf          String         @db.VarChar(14)
+  phone        String         @db.VarChar(20)
+  birth        DateTime       @db.Date
+  description  String         @db.Text
+  password     String         @db.VarChar(128)
+  type         Type_user      @default(COMPRADOR)
+  Address      Address?
+  Announcement Announcement[]
+  comment      Comment[]
+
+  @@map("users")
+}
+
+model Address {
+  id         String @id @default(uuid())
+  cep        String @db.VarChar(150)
+  state      String @db.VarChar(100)
+  city       String @db.VarChar(100)
+  street     String @db.VarChar(150)
+  number     Int?
+  complement String @db.VarChar(50)
+  user       User   @relation(fields: [user_id], references: [id])
+  user_id    String @unique
+
+  @@map("Adresses")
+}
+
+model Announcement {
+  id          String    @id @default(uuid())
+  mark        String    @db.VarChar(50)
+  model       String    @db.VarChar(50)
+  year        Int
+  fuel        Type_fuel @default(GASOLINA)
+  km          Float
+  color       String    @db.VarChar(50)
+  price       Float
+  fipe        Float
+  description String    @db.Text
+  user        User      @relation(fields: [user_id], references: [id])
+  user_id     String
+  image       Image[]
+  comment     Comment[]
+
+  @@map("announcements")
+}
+
+model Image {
+  id              String       @id @default(uuid())
+  url             String       @db.VarChar(255)
+  announcement    Announcement @relation(fields: [announcement_id], references: [id])
+  announcement_id String
+
+  @@map("images")
+}
+
+model Comment {
+  id              String       @id @default(uuid())
+  comment         String       @db.Text
+  user            User         @relation(fields: [user_id], references: [id])
+  user_id         String
+  createdAt       DateTime     @default(now())
+  announcement    Announcement @relation(fields: [announcement_id], references: [id])
+  announcement_id String
+
+  @@map("comments")
+}
