@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAdressDto } from '../dto/create-adress.dto';
 import { UpdateAdressDto } from '../dto/update-adress.dto';
@@ -19,14 +19,26 @@ export class AddressRepository {
   }
 
   async findOne(id: string): Promise<AdressEntity> {
-    return await this.prisma.address.findUnique({
+    const findAdress = await this.prisma.address.findUnique({
       where: {
         id,
       },
     });
+    if (!findAdress) {
+      throw new NotFoundException('Adress not found');
+    }
+    return findAdress;
   }
 
   async update(id: string, updateAdressDto: UpdateAdressDto) {
+    const findAdress = await this.prisma.address.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!findAdress) {
+      throw new NotFoundException('Adress not found');
+    }
     return this.prisma.address.update({
       where: {
         id,
@@ -36,6 +48,14 @@ export class AddressRepository {
   }
 
   async remove(id: string) {
+    const findAdress = await this.prisma.address.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!findAdress) {
+      throw new NotFoundException('Adress not found');
+    }
     return await this.prisma.address.delete({
       where: {
         id,

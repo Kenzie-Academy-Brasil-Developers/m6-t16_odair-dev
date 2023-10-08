@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { CommentEntity } from '../entities/comment.entity';
@@ -19,17 +19,29 @@ export class CommentsRepository {
   }
 
   async findOne(id: string): Promise<CommentEntity> {
-    return this.prisma.comment.findUnique({
+    const findComment = await this.prisma.comment.findUnique({
       where: {
         id,
       },
     });
+    if (!findComment) {
+      throw new NotFoundException('Comment not found');
+    }
+    return findComment;
   }
 
   async update(
     id: string,
     updateCommentDto: UpdateCommentDto,
   ): Promise<CommentEntity> {
+    const findComment = await this.prisma.comment.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!findComment) {
+      throw new NotFoundException('Comment not found');
+    }
     return this.prisma.comment.update({
       where: {
         id,
@@ -39,6 +51,14 @@ export class CommentsRepository {
   }
 
   async remove(id: string): Promise<CommentEntity> {
+    const findComment = await this.prisma.comment.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!findComment) {
+      throw new NotFoundException('Comment not found');
+    }
     return this.prisma.comment.delete({
       where: {
         id,

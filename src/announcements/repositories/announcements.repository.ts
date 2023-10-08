@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAnnouncementDto } from '../dto/create-announcement.dto';
 import { UpdateAnnouncementDto } from '../dto/update-announcement.dto';
@@ -21,17 +21,29 @@ export class AnnouncementRepository {
   }
 
   async findOne(id: string): Promise<AnnouncementEntity> {
-    return this.prisma.announcement.findUnique({
+    const findAnnouncement = await this.prisma.announcement.findUnique({
       where: {
         id,
       },
     });
+    if (!findAnnouncement) {
+      throw new NotFoundException('Announcement not found');
+    }
+    return findAnnouncement;
   }
 
   async update(
     id: string,
     updateAnnouncementDto: UpdateAnnouncementDto,
   ): Promise<AnnouncementEntity> {
+    const findAnnouncement = await this.prisma.announcement.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!findAnnouncement) {
+      throw new NotFoundException('Announcement not found');
+    }
     return this.prisma.announcement.update({
       where: {
         id,
@@ -41,6 +53,14 @@ export class AnnouncementRepository {
   }
 
   async remove(id: string): Promise<AnnouncementEntity> {
+    const findAnnouncement = await this.prisma.announcement.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!findAnnouncement) {
+      throw new NotFoundException('Announcement not found');
+    }
     return this.prisma.announcement.delete({
       where: {
         id,
