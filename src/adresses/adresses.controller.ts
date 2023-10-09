@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { Body, Patch, Param, Delete } from '@nestjs/common';
 import { AdressesService } from './adresses.service';
 import { CreateAdressDto } from './dto/create-adress.dto';
@@ -28,6 +28,7 @@ export class AdressesController {
     return this.adressesService.update(id, updateAdressDto);
   }
 
+  @HttpCode(204)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.adressesService.remove(id);

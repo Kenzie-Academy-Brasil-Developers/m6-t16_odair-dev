@@ -3,19 +3,22 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserEntity } from '../entities/user.entity';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    return this.prisma.user.create({
+    const newUser = this.prisma.user.create({
       data: createUserDto,
     });
+    return plainToInstance(UserEntity, newUser);
   }
 
   async findAll(): Promise<UserEntity[]> {
-    return await this.prisma.user.findMany();
+    const users = await this.prisma.user.findMany();
+    return plainToInstance(UserEntity, users);
   }
 
   async findOne(id: string): Promise<UserEntity> {
@@ -27,7 +30,7 @@ export class UserRepository {
     if (!findUser) {
       throw new NotFoundException('User not found');
     }
-    return findUser;
+    return plainToInstance(UserEntity, findUser);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
@@ -39,12 +42,13 @@ export class UserRepository {
     if (!findUser) {
       throw new NotFoundException('User not found');
     }
-    return this.prisma.user.update({
+    const user = this.prisma.user.update({
       where: {
         id,
       },
       data: updateUserDto,
     });
+    return plainToInstance(UserEntity, user);
   }
 
   async remove(id: string): Promise<UserEntity> {
@@ -55,11 +59,12 @@ export class UserRepository {
     });
     if (!findUser) {
       throw new NotFoundException('User not found');
+    } else {
+      return this.prisma.user.delete({
+        where: {
+          id,
+        },
+      });
     }
-    return this.prisma.user.delete({
-      where: {
-        id,
-      },
-    });
   }
 }

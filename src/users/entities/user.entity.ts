@@ -1,4 +1,5 @@
 import { $Enums, User } from '@prisma/client';
+import { Exclude } from 'class-transformer';
 export class UserEntity implements User {
   id: string;
   email: string;
@@ -7,6 +8,9 @@ export class UserEntity implements User {
   phone: string;
   birth: Date;
   description: string;
+
+  @Exclude()
   password: string;
+
   type: $Enums.Type_user;
 }
