@@ -7,5 +7,6 @@ import { ImageRepository } from './repositories/images.respository';
 @Module({
   controllers: [ImagesController],
   providers: [ImagesService, PrismaService, ImageRepository],
+  exports: [ImagesService],
 })
 export class ImagesModule {}

@@ -1,4 +1,4 @@
-import { $Enums, Announcement } from '@prisma/client';
+import { $Enums, Announcement, Image } from '@prisma/client';
 
 export class AnnouncementEntity implements Announcement {
   id: string;
@@ -12,4 +12,5 @@ export class AnnouncementEntity implements Announcement {
   fipe: number;
   description: string;
   user_id: string;
+  image?: Image[];
 }

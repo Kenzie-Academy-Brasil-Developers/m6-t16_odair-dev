@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAnnouncementDto } from './dto/create-announcement.dto';
+import { CreateAnnouncementAndImageDto } from './dto/create-announcement.dto';
 import { UpdateAnnouncementDto } from './dto/update-announcement.dto';
 import { AnnouncementRepository } from './repositories/announcements.repository';
 
@@ -7,8 +7,12 @@ import { AnnouncementRepository } from './repositories/announcements.repository'
 export class AnnouncementsService {
   constructor(private readonly repository: AnnouncementRepository) {}
 
-  create(createAnnouncementDto: CreateAnnouncementDto) {
-    return this.repository.create(createAnnouncementDto);
+  create(
+    createAnnouncementDto: CreateAnnouncementAndImageDto,
+    type: string,
+    id: string,
+  ) {
+    return this.repository.create(createAnnouncementDto, type, id);
   }
 
   findAll() {
@@ -19,11 +23,19 @@ export class AnnouncementsService {
     return this.repository.findOne(id);
   }
 
-  update(id: string, updateAnnouncementDto: UpdateAnnouncementDto) {
-    return this.repository.update(id, updateAnnouncementDto);
+  findByAdvertiser(id: string) {
+    return this.repository.findByAdvertiser(id);
   }
 
-  remove(id: string) {
-    return this.repository.remove(id);
+  update(
+    id: string,
+    token_id: string,
+    updateAnnouncementDto: UpdateAnnouncementDto,
+  ) {
+    return this.repository.update(id, token_id, updateAnnouncementDto);
+  }
+
+  remove(id: string, token_id: string) {
+    return this.repository.remove(id, token_id);
   }
 }

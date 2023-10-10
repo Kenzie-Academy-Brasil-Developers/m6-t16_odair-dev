@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateAnnouncementDto } from '../dto/create-announcement.dto';
+import { CreateAnnouncementAndImageDto } from '../dto/create-announcement.dto';
 import { UpdateAnnouncementDto } from '../dto/update-announcement.dto';
 import { AnnouncementEntity } from '../entities/announcement.entity';
 
@@ -9,21 +14,65 @@ export class AnnouncementRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    createAnnouncementDto: CreateAnnouncementDto,
+    createAnnouncementDto: CreateAnnouncementAndImageDto,
+    type: string,
+    id: string,
   ): Promise<AnnouncementEntity> {
-    return this.prisma.announcement.create({
-      data: createAnnouncementDto,
-    });
+    createAnnouncementDto = { ...createAnnouncementDto, user_id: id };
+    const { image, ...rest } = createAnnouncementDto;
+    if (type == 'ANUNCIANTE') {
+      const newAnnouncement = await this.prisma.announcement.create({
+        data: rest,
+      });
+      const newImage = { ...image, announcement_id: newAnnouncement.id };
+      await this.prisma.image.create({
+        data: newImage,
+      });
+      return await this.prisma.announcement.findUnique({
+        where: {
+          id: newAnnouncement.id,
+        },
+        include: {
+          image: true,
+        },
+      });
+    } else {
+      throw new ForbiddenException(
+        'Only ANUNCIANTE can perform this operation',
+      );
+    }
   }
 
   async findAll(): Promise<AnnouncementEntity[]> {
-    return this.prisma.announcement.findMany();
+    return this.prisma.announcement.findMany({
+      include: {
+        image: true,
+      },
+    });
+  }
+
+  async findByAdvertiser(id: string): Promise<AnnouncementEntity[]> {
+    const findAnnouncements = await this.prisma.announcement.findMany({
+      where: {
+        user_id: id,
+      },
+      include: {
+        image: true,
+      },
+    });
+    if (!findAnnouncements) {
+      throw new NotFoundException('Announcement not found');
+    }
+    return findAnnouncements;
   }
 
   async findOne(id: string): Promise<AnnouncementEntity> {
     const findAnnouncement = await this.prisma.announcement.findUnique({
       where: {
         id,
+      },
+      include: {
+        image: true,
       },
     });
     if (!findAnnouncement) {
@@ -34,6 +83,7 @@ export class AnnouncementRepository {
 
   async update(
     id: string,
+    token_id: string,
     updateAnnouncementDto: UpdateAnnouncementDto,
   ): Promise<AnnouncementEntity> {
     const findAnnouncement = await this.prisma.announcement.findUnique({
@@ -44,15 +94,22 @@ export class AnnouncementRepository {
     if (!findAnnouncement) {
       throw new NotFoundException('Announcement not found');
     }
-    return this.prisma.announcement.update({
-      where: {
-        id,
-      },
-      data: updateAnnouncementDto,
-    });
+    if (token_id == findAnnouncement.user_id) {
+      return this.prisma.announcement.update({
+        where: {
+          id,
+        },
+        include: {
+          image: true,
+        },
+        data: updateAnnouncementDto,
+      });
+    } else {
+      throw new ForbiddenException('Only owner can perform this operation');
+    }
   }
 
-  async remove(id: string): Promise<AnnouncementEntity> {
+  async remove(id: string, token_id: string): Promise<AnnouncementEntity> {
     const findAnnouncement = await this.prisma.announcement.findUnique({
       where: {
         id,
@@ -61,10 +118,14 @@ export class AnnouncementRepository {
     if (!findAnnouncement) {
       throw new NotFoundException('Announcement not found');
     }
-    return this.prisma.announcement.delete({
-      where: {
-        id,
-      },
-    });
+    if (token_id == findAnnouncement.user_id) {
+      return this.prisma.announcement.delete({
+        where: {
+          id,
+        },
+      });
+    } else {
+      throw new ForbiddenException('Only owner can perform this operation');
+    }
   }
 }

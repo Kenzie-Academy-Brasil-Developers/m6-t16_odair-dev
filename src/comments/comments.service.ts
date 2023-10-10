@@ -7,8 +7,8 @@ import { CommentsRepository } from './repositories/comments.repository';
 export class CommentsService {
   constructor(private readonly repository: CommentsRepository) {}
 
-  create(createCommentDto: CreateCommentDto) {
-    return this.repository.create(createCommentDto);
+  create(createCommentDto: CreateCommentDto, token_id: string) {
+    return this.repository.create(createCommentDto, token_id);
   }
 
   findAll() {
@@ -19,11 +19,20 @@ export class CommentsService {
     return this.repository.findOne(id);
   }
 
-  update(id: string, updateCommentDto: UpdateCommentDto) {
-    return this.repository.update(id, updateCommentDto);
+  findByAnnouncement(id: string) {
+    return this.repository.findByAnnouncement(id);
   }
 
-  remove(id: string) {
-    return this.repository.remove(id);
+  update(
+    id: string,
+    updateCommentDto: UpdateCommentDto,
+    token_id: string,
+    type: string,
+  ) {
+    return this.repository.update(id, updateCommentDto, token_id, type);
+  }
+
+  remove(id: string, token_id: string, type: string) {
+    return this.repository.remove(id, token_id, type);
   }
 }

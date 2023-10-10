@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserAddressDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { plainToInstance } from 'class-transformer';
@@ -9,11 +13,24 @@ import { plainToInstance } from 'class-transformer';
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const newUser = this.prisma.user.create({
-      data: createUserDto,
+  async create(createUserDto: CreateUserAddressDto): Promise<UserEntity> {
+    const { Address, ...rest } = createUserDto;
+    const newUser = await this.prisma.user.create({
+      data: rest,
     });
-    return plainToInstance(UserEntity, newUser);
+    const newAddress = { ...Address, user_id: newUser.id };
+    await this.prisma.address.create({
+      data: newAddress,
+    });
+    const userReturn = await this.prisma.user.findUnique({
+      where: {
+        id: newUser.id,
+      },
+      include: {
+        Address: true,
+      },
+    });
+    return plainToInstance(UserEntity, userReturn);
   }
 
   async findAll(): Promise<UserEntity[]> {
@@ -33,7 +50,23 @@ export class UserRepository {
     return plainToInstance(UserEntity, findUser);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+  async findByEmail(email: string): Promise<UserEntity> {
+    const findUser = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+      include: {
+        Address: true,
+      },
+    });
+    return findUser;
+  }
+
+  async update(
+    id: string,
+    token_id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserEntity> {
     const findUser = await this.prisma.user.findUnique({
       where: {
         id,
@@ -42,16 +75,20 @@ export class UserRepository {
     if (!findUser) {
       throw new NotFoundException('User not found');
     }
-    const user = this.prisma.user.update({
-      where: {
-        id,
-      },
-      data: updateUserDto,
-    });
-    return plainToInstance(UserEntity, user);
+    if (id == token_id) {
+      const user = this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: updateUserDto,
+      });
+      return plainToInstance(UserEntity, user);
+    } else {
+      throw new UnauthorizedException('Only owner can perform this operation');
+    }
   }
 
-  async remove(id: string): Promise<UserEntity> {
+  async remove(id: string, token_id: string): Promise<UserEntity> {
     const findUser = await this.prisma.user.findUnique({
       where: {
         id,
@@ -59,12 +96,18 @@ export class UserRepository {
     });
     if (!findUser) {
       throw new NotFoundException('User not found');
-    } else {
+    }
+    if (id == token_id) {
       return this.prisma.user.delete({
         where: {
           id,
         },
+        include: {
+          Address: true,
+        },
       });
+    } else {
+      throw new UnauthorizedException('Only owner can perform this operation');
     }
   }
 }

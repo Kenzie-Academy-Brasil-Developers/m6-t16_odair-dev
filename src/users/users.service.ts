@@ -1,19 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserAddressDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './repositories/users.repository';
-// import { UnauthorizedError } from 'src/common/errors/types/UnauthorizedError';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly repository: UserRepository) {}
 
-  create(createUserDto: CreateUserDto) {
+  create(createUserDto: CreateUserAddressDto) {
     return this.repository.create(createUserDto);
   }
 
   findAll() {
-    // throw new UnauthorizedError('Acesso não autorizado');
     return this.repository.findAll();
   }
 
@@ -21,11 +19,15 @@ export class UsersService {
     return this.repository.findOne(id);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.repository.update(id, updateUserDto);
+  findByEmail(email: string) {
+    return this.repository.findByEmail(email);
   }
 
-  remove(id: string) {
-    return this.repository.remove(id);
+  update(id: string, token_id: string, updateUserDto: UpdateUserDto) {
+    return this.repository.update(id, token_id, updateUserDto);
+  }
+
+  remove(id: string, token_id: string) {
+    return this.repository.remove(id, token_id);
   }
 }

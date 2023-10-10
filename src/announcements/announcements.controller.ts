@@ -1,16 +1,35 @@
-import { Controller, Get, HttpCode, Post } from '@nestjs/common';
-import { Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  UseGuards,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Request,
+} from '@nestjs/common';
 import { AnnouncementsService } from './announcements.service';
-import { CreateAnnouncementDto } from './dto/create-announcement.dto';
+import { CreateAnnouncementAndImageDto } from './dto/create-announcement.dto';
 import { UpdateAnnouncementDto } from './dto/update-announcement.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('announcements')
 export class AnnouncementsController {
   constructor(private readonly announcementsService: AnnouncementsService) {}
 
   @Post()
-  create(@Body() createAnnouncementDto: CreateAnnouncementDto) {
-    return this.announcementsService.create(createAnnouncementDto);
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Body() createAnnouncementDto: CreateAnnouncementAndImageDto,
+    @Request() req,
+  ) {
+    return this.announcementsService.create(
+      createAnnouncementDto,
+      req.user.type,
+      req.user.id,
+    );
   }
 
   @Get()
@@ -23,17 +42,29 @@ export class AnnouncementsController {
     return this.announcementsService.findOne(id);
   }
 
+  @Get('advertiser/:id')
+  findByAdvertiser(@Param('id') id: string) {
+    return this.announcementsService.findByAdvertiser(id);
+  }
+
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateAnnouncementDto: UpdateAnnouncementDto,
+    @Request() req,
   ) {
-    return this.announcementsService.update(id, updateAnnouncementDto);
+    return this.announcementsService.update(
+      id,
+      req.user.id,
+      updateAnnouncementDto,
+    );
   }
 
   @HttpCode(204)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.announcementsService.remove(id);
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string, @Request() req) {
+    return this.announcementsService.remove(id, req.user.id);
   }
 }
