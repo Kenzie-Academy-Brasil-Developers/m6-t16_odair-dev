@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { $Enums, Type_fuel } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -52,37 +53,46 @@ export class CreateAnnouncementDto {
 }
 
 export class CreateAnnouncementAndImageDto {
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   mark: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   model: string;
 
+  @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
   year: number;
 
+  @ApiProperty()
   @IsEnum(Type_fuel)
   fuel: $Enums.Type_fuel;
 
+  @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
   km: number;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   color: string;
 
+  @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
   price: number;
 
+  @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
   fipe: number;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   description: string;
@@ -90,6 +100,7 @@ export class CreateAnnouncementAndImageDto {
   @IsEmpty()
   user_id: string;
 
+  @ApiProperty()
   @IsObject()
   @ValidateNested()
   @Type(() => CreateImageDto)

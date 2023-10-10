@@ -14,11 +14,14 @@ import { AnnouncementsService } from './announcements.service';
 import { CreateAnnouncementAndImageDto } from './dto/create-announcement.dto';
 import { UpdateAnnouncementDto } from './dto/update-announcement.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Announcements')
 @Controller('announcements')
 export class AnnouncementsController {
   constructor(private readonly announcementsService: AnnouncementsService) {}
 
+  @ApiBearerAuth()
   @Post()
   @UseGuards(JwtAuthGuard)
   create(
@@ -47,6 +50,7 @@ export class AnnouncementsController {
     return this.announcementsService.findByAdvertiser(id);
   }
 
+  @ApiBearerAuth()
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   update(
@@ -61,6 +65,7 @@ export class AnnouncementsController {
     );
   }
 
+  @ApiBearerAuth()
   @HttpCode(204)
   @Delete(':id')
   @UseGuards(JwtAuthGuard)

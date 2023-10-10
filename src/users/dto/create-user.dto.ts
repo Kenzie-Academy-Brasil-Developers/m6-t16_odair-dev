@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { $Enums, Type_user } from '@prisma/client';
 import { hashSync } from 'bcryptjs';
 import { Transform, Type } from 'class-transformer';
@@ -50,31 +51,38 @@ export class CreateUserDto {
 }
 
 export class CreateUserAddressDto {
+  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   cpf: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   phone: string;
 
+  @ApiProperty()
   @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
   birth: Date;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   description: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: { value: string }) => hashSync(value, 10), {
@@ -82,10 +90,12 @@ export class CreateUserAddressDto {
   })
   password: string;
 
+  @ApiPropertyOptional()
   @IsEnum(Type_user)
   @IsOptional()
   type: $Enums.Type_user;
 
+  @ApiProperty()
   @IsObject()
   @ValidateNested()
   @Type(() => CreateAdressDto)

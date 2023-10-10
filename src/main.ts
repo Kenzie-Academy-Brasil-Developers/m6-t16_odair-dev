@@ -4,10 +4,23 @@ import { ValidationPipe } from '@nestjs/common';
 import { UnauthorizedInterceptor } from './common/errors/interceptors/unauthorized.interceptor';
 import { ConflictInterceptor } from './common/errors/interceptors/conflict.interceptor';
 import { DatabaseInterceptor } from './common/errors/interceptors/database.interceptor';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+
+  const config = new DocumentBuilder()
+    .setTitle('Venda de carros')
+    .setDescription(
+      'A API de venda de carros para todos, compradores e vendedores',
+    )
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
