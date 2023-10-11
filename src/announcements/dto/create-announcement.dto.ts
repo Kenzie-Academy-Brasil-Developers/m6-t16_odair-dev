@@ -2,11 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { $Enums, Type_fuel } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsObject,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -101,8 +101,8 @@ export class CreateAnnouncementAndImageDto {
   user_id: string;
 
   @ApiProperty()
-  @IsObject()
+  @IsArray()
   @ValidateNested()
   @Type(() => CreateImageDto)
-  image: CreateImageDto;
+  image: CreateImageDto[];
 }

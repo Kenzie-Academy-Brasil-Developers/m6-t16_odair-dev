@@ -24,10 +24,14 @@ export class AnnouncementRepository {
       const newAnnouncement = await this.prisma.announcement.create({
         data: rest,
       });
-      const newImage = { ...image, announcement_id: newAnnouncement.id };
-      await this.prisma.image.create({
-        data: newImage,
-      });
+      if (image) {
+        for (const i of image) {
+          const newImage = { ...i, announcement_id: newAnnouncement.id };
+          await this.prisma.image.create({
+            data: newImage,
+          });
+        }
+      }
       return await this.prisma.announcement.findUnique({
         where: {
           id: newAnnouncement.id,
