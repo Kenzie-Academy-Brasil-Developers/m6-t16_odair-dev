@@ -39,15 +39,26 @@ export class CommentsRepository {
   }
 
   async findByAnnouncement(id: string): Promise<CommentEntity[]> {
-    const findComments = await this.prisma.comment.findMany({
+    const findAnnouncement = await this.prisma.announcement.findUnique({
       where: {
-        announcement_id: id,
+        id,
       },
     });
-    if (!findComments) {
-      throw new NotFoundException('Comment not found');
+    if (findAnnouncement) {
+      const findComments = await this.prisma.comment.findMany({
+        where: {
+          announcement_id: id,
+        },
+      });
+      if (findComments.length == 0) {
+        throw new NotFoundException(
+          'There are no comments for this announcement.',
+        );
+      }
+      return findComments;
+    } else {
+      throw new NotFoundException('Announcement not found');
     }
-    return findComments;
   }
 
   async update(

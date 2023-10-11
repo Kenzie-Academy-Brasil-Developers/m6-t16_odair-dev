@@ -45,7 +45,7 @@ model Address {
   street     String @db.VarChar(150)
   number     Int?
   complement String @db.VarChar(50)
-  user       User   @relation(fields: [user_id], references: [id])
+  user       User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id    String @unique
 
   @@map("Adresses")
@@ -62,7 +62,7 @@ model Announcement {
   price       Float
   fipe        Float
   description String    @db.Text
-  user        User      @relation(fields: [user_id], references: [id])
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id     String
   image       Image[]
   comment     Comment[]
@@ -73,7 +73,7 @@ model Announcement {
 model Image {
   id              String       @id @default(uuid())
   url             String       @db.VarChar(255)
-  announcement    Announcement @relation(fields: [announcement_id], references: [id])
+  announcement    Announcement @relation(fields: [announcement_id], references: [id], onDelete: Cascade)
   announcement_id String
 
   @@map("images")
@@ -82,10 +82,10 @@ model Image {
 model Comment {
   id              String       @id @default(uuid())
   comment         String       @db.Text
-  user            User         @relation(fields: [user_id], references: [id])
+  user            User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id         String
   createdAt       DateTime     @default(now())
-  announcement    Announcement @relation(fields: [announcement_id], references: [id])
+  announcement    Announcement @relation(fields: [announcement_id], references: [id], onDelete: Cascade)
   announcement_id String
 
   @@map("comments")
