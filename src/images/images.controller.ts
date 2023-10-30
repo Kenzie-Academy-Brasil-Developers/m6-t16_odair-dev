@@ -38,4 +38,11 @@ export class ImagesController {
   remove(@Param('id') id: string) {
     return this.imagesService.remove(id);
   }
+
+  @ApiBearerAuth()
+  @HttpCode(204)
+  @Delete('announcement/:id')
+  removeByAnnouncement(@Param('id') id: string) {
+    return this.imagesService.removeByAnnouncement(id);
+  }
 }

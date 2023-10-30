@@ -65,4 +65,23 @@ export class ImageRepository {
       },
     });
   }
+
+  async removeByAnnouncement(id: string): Promise<void> {
+    const findImage = await this.prisma.image.findMany({
+      where: {
+        announcement_id: id,
+      },
+    });
+    if (!findImage) {
+      throw new NotFoundException('Image not found');
+    }
+    findImage.map((i) => {
+      this.remove(i.id);
+      // return this.prisma.image.delete({
+      //   where: {
+      //     id: i.id,
+      //   },
+      // });
+    });
+  }
 }

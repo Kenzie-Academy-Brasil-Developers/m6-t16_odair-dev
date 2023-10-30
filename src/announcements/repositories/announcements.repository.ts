@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAnnouncementAndImageDto } from '../dto/create-announcement.dto';
 import { UpdateAnnouncementDto } from '../dto/update-announcement.dto';
 import { AnnouncementEntity } from '../entities/announcement.entity';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AnnouncementRepository {
@@ -48,11 +49,13 @@ export class AnnouncementRepository {
   }
 
   async findAll(): Promise<AnnouncementEntity[]> {
-    return this.prisma.announcement.findMany({
+    const announcements = await this.prisma.announcement.findMany({
       include: {
+        user: true,
         image: true,
       },
     });
+    return plainToInstance(AnnouncementEntity, announcements);
   }
 
   async findByAdvertiser(id: string): Promise<AnnouncementEntity[]> {
@@ -62,6 +65,13 @@ export class AnnouncementRepository {
       },
       include: {
         image: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
       },
     });
     if (!findAnnouncements) {
@@ -76,13 +86,35 @@ export class AnnouncementRepository {
         id,
       },
       include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            cpf: true,
+            phone: true,
+            birth: true,
+            description: true,
+            type: true,
+          },
+        },
         image: true,
+        comment: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
     if (!findAnnouncement) {
       throw new NotFoundException('Announcement not found');
     }
-    return findAnnouncement;
+    return plainToInstance(AnnouncementEntity, findAnnouncement);
   }
 
   async update(
@@ -99,6 +131,7 @@ export class AnnouncementRepository {
       throw new NotFoundException('Announcement not found');
     }
     if (token_id == findAnnouncement.user_id) {
+      ////////////////////////////////////////////////////////////////////////
       return this.prisma.announcement.update({
         where: {
           id,

@@ -38,16 +38,23 @@ export class UserRepository {
     return plainToInstance(UserEntity, users);
   }
 
-  async findOne(id: string): Promise<UserEntity> {
+  async findOne(id: string, token_id: string): Promise<UserEntity> {
     const findUser = await this.prisma.user.findUnique({
       where: {
         id,
+      },
+      include: {
+        Address: true,
       },
     });
     if (!findUser) {
       throw new NotFoundException('User not found');
     }
-    return plainToInstance(UserEntity, findUser);
+    if (id == token_id) {
+      return plainToInstance(UserEntity, findUser);
+    } else {
+      throw new UnauthorizedException('Only owner can perform this operation');
+    }
   }
 
   async findByEmail(email: string): Promise<UserEntity> {

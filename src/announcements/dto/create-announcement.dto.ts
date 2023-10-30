@@ -10,7 +10,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { CreateImageDto } from 'src/images/dto/create-image.dto';
+import { CreateImageDto2 } from 'src/images/dto/create-image.dto';
 
 export class CreateAnnouncementDto {
   @IsString()
@@ -103,6 +103,6 @@ export class CreateAnnouncementAndImageDto {
   @ApiProperty()
   @IsArray()
   @ValidateNested()
-  @Type(() => CreateImageDto)
-  image: CreateImageDto[];
+  @Type(() => CreateImageDto2)
+  image: CreateImageDto2[];
 }

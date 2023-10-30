@@ -23,13 +23,20 @@ export class CommentsRepository {
   }
 
   async findAll(): Promise<CommentEntity[]> {
-    return this.prisma.comment.findMany();
+    return this.prisma.comment.findMany({
+      include: {
+        user: true,
+      },
+    });
   }
 
   async findOne(id: string): Promise<CommentEntity> {
     const findComment = await this.prisma.comment.findUnique({
       where: {
         id,
+      },
+      include: {
+        user: true,
       },
     });
     if (!findComment) {
@@ -48,6 +55,9 @@ export class CommentsRepository {
       const findComments = await this.prisma.comment.findMany({
         where: {
           announcement_id: id,
+        },
+        include: {
+          user: true,
         },
       });
       if (findComments.length == 0) {

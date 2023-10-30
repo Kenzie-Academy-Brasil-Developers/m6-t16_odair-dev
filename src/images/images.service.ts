@@ -26,4 +26,8 @@ export class ImagesService {
   remove(id: string) {
     return this.repository.remove(id);
   }
+
+  removeByAnnouncement(id: string) {
+    return this.repository.removeByAnnouncement(id);
+  }
 }

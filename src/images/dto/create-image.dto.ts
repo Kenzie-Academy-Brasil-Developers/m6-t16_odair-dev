@@ -7,6 +7,17 @@ export class CreateImageDto {
   @IsNotEmpty()
   url: string;
 
+  @IsString()
+  @IsNotEmpty()
+  announcement_id: string;
+}
+
+export class CreateImageDto2 {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  url: string;
+
   @IsEmpty()
   announcement_id: string;
 }

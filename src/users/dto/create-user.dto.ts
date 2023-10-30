@@ -10,7 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { IsDate, IsEmail, IsEnum } from 'class-validator';
-import { CreateAdressDto } from 'src/adresses/dto/create-adress.dto';
+import { CreateAdressDto2 } from 'src/adresses/dto/create-adress.dto';
 
 export class CreateUserDto {
   @IsEmail()
@@ -98,6 +98,6 @@ export class CreateUserAddressDto {
   @ApiProperty()
   @IsObject()
   @ValidateNested()
-  @Type(() => CreateAdressDto)
-  Address: CreateAdressDto;
+  @Type(() => CreateAdressDto2)
+  Address: CreateAdressDto2;
 }

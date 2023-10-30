@@ -15,8 +15,8 @@ export class UsersService {
     return this.repository.findAll();
   }
 
-  findOne(id: string) {
-    return this.repository.findOne(id);
+  findOne(id: string, token_id: string) {
+    return this.repository.findOne(id, token_id);
   }
 
   findByEmail(email: string) {

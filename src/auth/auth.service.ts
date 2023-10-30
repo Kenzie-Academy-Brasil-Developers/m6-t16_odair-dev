@@ -23,7 +23,10 @@ export class AuthService {
   async login(email: string) {
     const user = await this.userService.findByEmail(email);
     return {
-      token: this.jwtService.sign({ type: user.type }, { subject: user.id }),
+      token: this.jwtService.sign(
+        { type: user.type, name: user.name, description: user.description },
+        { subject: user.id },
+      ),
     };
   }
 }

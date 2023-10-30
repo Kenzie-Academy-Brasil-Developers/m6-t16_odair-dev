@@ -2,7 +2,7 @@ import {
   Controller,
   HttpCode,
   UseGuards,
-  // Get,
+  Get,
   Post,
   Body,
   Patch,
@@ -31,10 +31,12 @@ export class UsersController {
   //   return this.usersService.findAll();
   // }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(id);
-  // }
+  @ApiBearerAuth()
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  findOne(@Param('id') id: string, @Request() req) {
+    return this.usersService.findOne(id, req.user.id);
+  }
 
   @ApiBearerAuth()
   @Patch(':id')
